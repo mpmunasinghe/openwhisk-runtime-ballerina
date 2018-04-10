@@ -24,7 +24,7 @@ func InitHandler(writer http.ResponseWriter, request *http.Request) {
 	if init.Value.Binary {
 		fileName = "function.balx"
 	}
-	
+
 	err = ioutil.WriteFile(fileName, content, 0644)
 	if err != nil {
 		panic(err)

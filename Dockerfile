@@ -17,7 +17,7 @@ FROM openjdk:jre-alpine
 
 RUN apk add --update bash
 
-COPY ballerina-tools-0.963.0/ /ballerina
+COPY ballerina-tools-0.970.0-alpha3/ /ballerina
 COPY ballerina-action/ballerina-action /openwhisk/ballerina-action
 
 ENV BALLERINA_HOME=/ballerina

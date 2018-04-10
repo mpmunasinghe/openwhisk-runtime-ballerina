@@ -43,7 +43,7 @@ The following prerequisites are needed to try this out:
 4. Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
    
    ```bash
-   wsk action create hello-function hello-function.bal --docker imesh/ballerina-action
+   wsk action create hello-function hello-function.bal --docker mpmunasinghe/ballerina-action
    ```
 
 5. Invoke the hello-function using the OpenWhisk CLI:

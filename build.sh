@@ -22,4 +22,4 @@ env GOOS=linux GOARCH=amd64 go build
 popd
 
 echo "Building docker image..."
-docker build -t imesh/ballerina-action .
+docker build -t mpmunasinghe/ballerina-runtime .
