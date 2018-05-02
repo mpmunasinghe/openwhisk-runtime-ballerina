@@ -32,18 +32,17 @@ The following prerequisites are needed to try this out:
 3. Create a Ballerina function file with the following content and name it as hello-function.bal:
 
    ```
-   import ballerina.io;
-
-   function main (string[] args) {
-      var output = { "hello": "world!" };
-      io:println(output);
-   }
+    import ballerina/io;
+    
+    function main (string[] args) {
+        io:println("Hello, World!");
+    }
    ```
 
 4. Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
    
    ```bash
-   wsk action create hello-function hello-function.bal --docker mpmunasinghe/ballerina-action
+   wsk action create hello-function hello-function.bal --docker mpmunasinghe/ballerina-runtime
    ```
 
 5. Invoke the hello-function using the OpenWhisk CLI:
