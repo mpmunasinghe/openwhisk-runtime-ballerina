@@ -34,8 +34,9 @@ The following prerequisites are needed to try this out:
    ```
     import ballerina/io;
     
-    function main (string[] args) {
-        io:println("Hello, World!");
+    function main (string... args) {
+        json output = { "hello": "world!" };
+        io:println(output);
     }
    ```
 
