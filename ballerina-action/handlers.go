@@ -6,23 +6,32 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"encoding/base64"
 )
+
 
 func InitHandler(writer http.ResponseWriter, request *http.Request) {
 	// Decode request message body
 	decoder := json.NewDecoder(request.Body)
+
 	var init Init
+	var fileName string
+	var content []byte
+
 	err := decoder.Decode(&init)
 	if err != nil {
 		panic(err)
 	}
 	defer request.Body.Close()
 
-	// Write function to a ballerina file
-	content := []byte(init.Value.Code)
-	fileName := "function.bal"
+	// Write function to a file
 	if init.Value.Binary {
 		fileName = "function.balx"
+		sDec, _ := base64.StdEncoding.DecodeString(init.Value.Code)
+		content = []byte(sDec)
+	} else {
+		fileName = "function.bal"
+		content = []byte(init.Value.Code)
 	}
 
 	err = ioutil.WriteFile(fileName, content, 0644)
@@ -30,8 +39,8 @@ func InitHandler(writer http.ResponseWriter, request *http.Request) {
 		panic(err)
 	}
 
+	// Compile ballerina function if the file is not a binary
 	if !init.Value.Binary {
-		// Compile ballerina function
 		_, err = exec.Command("sh", "-c", "ballerina build function.bal").Output()
 		if err != nil {
 			panic(err)

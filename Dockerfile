@@ -13,16 +13,11 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM openjdk:jre-alpine
+FROM ballerina/ballerina:0.970.0
 
-RUN apk add --update bash
+COPY ballerina-action/ballerina-action /home/ballerina/ballerina-action
 
-COPY ballerina-tools-0.970.0/ /ballerina
-COPY ballerina-action/ballerina-action /openwhisk/ballerina-action
-
-ENV BALLERINA_HOME=/ballerina
-ENV PATH=$BALLERINA_HOME/bin:${PATH}
-WORKDIR /openwhisk
+WORKDIR /home/ballerina
 
 EXPOSE 8080
-ENTRYPOINT /openwhisk/ballerina-action
+ENTRYPOINT /home/ballerina/ballerina-action
