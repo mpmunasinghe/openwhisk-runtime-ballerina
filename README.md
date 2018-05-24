@@ -1,6 +1,6 @@
 # Apache OpenWhisk Runtime for Ballerina
 
-This repository contains the [Ballerina](https://ballerinalang.org) runtime extension for Apache OpenWhisk serverless platform.
+This repository contains the [Ballerina](https://ballerinalang.org) hellonative extension for Apache OpenWhisk serverless platform.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ The following prerequisites are needed to try this out:
 - [Vagrant](https://www.vagrantup.com/downloads.html) >= v2.0.1
 - [OpenWhisk](https://github.com/apache/incubator-openwhisk.git)
 - [OpenWhisk CLI](https://github.com/apache/incubator-openwhisk-cli)
-- [Golang](https://golang.org/doc/install) >= v1.9.2 (if requires to build the Docker image)
+- [Ballerina](https://ballerina.io/downloads/) >= 0.970.0 (Requires to build the Docker image)
 
 ## Quick Start Guide
 

@@ -17,9 +17,5 @@
 set -e
 
 echo "Building ballerina action binary..."
-pushd ballerina-action
-env GOOS=linux GOARCH=amd64 go build
-popd
+ballerina build ballerina-action
 
-echo "Building docker image..."
-docker build -t mpmunasinghe/ballerina-runtime .

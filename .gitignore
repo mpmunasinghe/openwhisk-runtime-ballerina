@@ -1,8 +1,9 @@
 .vscode
 .idea
+.iml
+.balx
 
-ballerina-tools-*
-
-ballerina-action/ballerina-action
-ballerina-action/function.bal
-ballerina-action/function.balx
+ballerina-action/.ballerina
+ballerina-action/Ballerina.toml
+ballerina-action/ballerina-action.iml
+ballerina-internal.log
