@@ -4,13 +4,14 @@ import ballerina/io;
 import ballerina/internal;
 
 @docker:Config {
-    registry:"mpmunasinghe",
+    registry:"us.gcr.io/inner-deck-199908",
     name:"ballerina-runtime",
     tag:"latest"
 }
 
 @docker:Expose{}
 endpoint http:Listener listener {
+    host:"0.0.0.0",
     port:8080
 };
 
@@ -29,7 +30,6 @@ service<http:Service> greeting bind listener {
 
         boolean isBinaryFile = check <boolean>reqPayload.value.binary;
         blob blobContent = reqPayload.value.code.toString().toBlob("UTF-8");
-
         if (isBinaryFile) {
             fileName = "function.balx";
             io:ByteChannel fileChannel = io:openFile(fileName, io:WRITE);
@@ -37,23 +37,22 @@ service<http:Service> greeting bind listener {
             blobContent = blobContent.base64Decode();
             int i = check fileChannel.write(blobContent, 0);
 
-            response.statusCode = http:ACCEPTED_202;
+            response.statusCode = http:OK_200;
         } else {
             fileName = "function.bal";
             io:ByteChannel fileChannel = io:openFile(fileName, io:WRITE);
 
             int i = check fileChannel.write(blobContent, 0);
-
             internal:BallerinaCommand build = "build";
             var buildResult = filterResult(check internal:execBallerina(build, fileName));
 
             match buildResult {
                 string outString => {
-                    response.statusCode = http:ACCEPTED_202;
+                    response.statusCode = http:OK_200;
                 }
                 error err => {
                     response.statusCode = 500;
-                    response.setJsonPayload({error : "Error occurred while building the function " + err.message});
+                    response.setPayload("{'error' : 'Error occurred while building the function " + err.message + "'}");
                 }
             }
         }
@@ -72,10 +71,11 @@ service<http:Service> greeting bind listener {
             string outString => {
                 string[] stringArr = outString.split("\n");
                 int lastIndex = lengthof stringArr - 1;
-                response.setJsonPayload(stringArr[lastIndex]);
+                response.statusCode = http:OK_200;
+                response.setPayload(stringArr[lastIndex]);
             }
             error err => {
-                response.setJsonPayload({error : "Error occurred while running the function " + err.message});
+                response.setPayload("{'error' : 'Error occurred while running the function " + err.message + "'}");
             }
         }
         _ = caller->respond(response);
