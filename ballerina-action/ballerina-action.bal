@@ -54,7 +54,7 @@ service<http:Service> greeting bind listener {
                 }
                 error err => {
                     response.statusCode = 500;
-                    response.setJsonPayload("{'error' : 'Error occurred while building the function " + err.message + "'}");
+                    response.setPayload("{'error' : 'Error occurred while building the function " + err.message + "'}");
                 }
             }
         }
@@ -73,13 +73,12 @@ service<http:Service> greeting bind listener {
             string outString => {
                 string[] stringArr = outString.split("\n");
                 int lastIndex = lengthof stringArr - 1;
-                json jsonResponse = stringArr[lastIndex];
 
                 response.statusCode = http:OK_200;
-                response.setJsonPayload(jsonResponse);
+                response.setPayload(stringArr[lastIndex]);
             }
             error err => {
-                response.setJsonPayload("{'error' : 'Error occurred while running the function " + err.message + "'}");
+                response.setPayload("{'error' : 'Error occurred while running the function " + err.message + "'}");
             }
         }
         _ = caller->respond(response);
