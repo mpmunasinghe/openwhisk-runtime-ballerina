@@ -66,11 +66,14 @@ service<http:Service> greeting bind listener {
     }
     run(endpoint caller, http:Request request) {
         http:Response response = new;
+        json jsonPayload =  check request.getJsonPayload();
+
         internal:BallerinaCommand run = "run";
-        var execResult = filterResult(check internal:execBallerina(run, "function.balx"));
+        var execResult = filterResult(check internal:execBallerina(run, untaint ("function.balx " + jsonPayload.value.toString())));
 
         match execResult {
             string outString => {
+                io:println(outString);
                 string[] stringArr = outString.split("\n");
                 int lastIndex = lengthof stringArr - 1;
 
