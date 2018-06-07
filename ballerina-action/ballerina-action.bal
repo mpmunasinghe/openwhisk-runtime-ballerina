@@ -16,8 +16,10 @@ endpoint http:Listener listener {
 };
 
 @http:ServiceConfig {
-    basePath: "/"
+    basePath: "/",
+    compression: http:COMPRESSION_NEVER
 }
+
 service<http:Service> greeting bind listener {
 
     @http:ResourceConfig {
@@ -52,7 +54,7 @@ service<http:Service> greeting bind listener {
                 }
                 error err => {
                     response.statusCode = 500;
-                    response.setPayload("{'error' : 'Error occurred while building the function " + err.message + "'}");
+                    response.setJsonPayload("{'error' : 'Error occurred while building the function " + err.message + "'}");
                 }
             }
         }
@@ -71,11 +73,13 @@ service<http:Service> greeting bind listener {
             string outString => {
                 string[] stringArr = outString.split("\n");
                 int lastIndex = lengthof stringArr - 1;
+                json jsonResponse = stringArr[lastIndex];
+
                 response.statusCode = http:OK_200;
-                response.setPayload(stringArr[lastIndex]);
+                response.setJsonPayload(jsonResponse);
             }
             error err => {
-                response.setPayload("{'error' : 'Error occurred while running the function " + err.message + "'}");
+                response.setJsonPayload("{'error' : 'Error occurred while running the function " + err.message + "'}");
             }
         }
         _ = caller->respond(response);
