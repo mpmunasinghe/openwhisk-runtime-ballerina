@@ -17,5 +17,7 @@
 set -e
 
 echo "Building ballerina action binary..."
-ballerina build ballerina-action
-
+cd ballerina-proxy
+ballerina build
+cp  target/docker/Dockerfile ../Dockerfile
+cp  target/ballerina-proxy.balx ../ballerina-proxy.balx
