@@ -16,7 +16,7 @@
  */
 
 include 'tests'
-include 'ballerina'
+//include 'ballerina'
 
 
 rootProject.name = 'runtime-ballerina'

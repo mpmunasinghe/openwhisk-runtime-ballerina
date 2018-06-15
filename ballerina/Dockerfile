@@ -1,10 +1,10 @@
 # Auto Generated Dockerfile
 
-FROM ballerina/ballerina:0.970.0
+FROM java:8-jre
 LABEL maintainer="dev@ballerina.io"
 
-COPY ballerina-proxy.balx /home/ballerina 
+COPY ballerina-runtime /home/ballerina
 
 EXPOSE  8080
 
-CMD ballerina run ballerina-proxy.balx
+CMD java -Dballerina.home=/home/ballerina -jar /home/ballerina/ballerina-runtime-0.0.1-SNAPSHOT.jar --http.port=8080

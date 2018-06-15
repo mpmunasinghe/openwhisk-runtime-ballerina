@@ -9,7 +9,7 @@ The following prerequisites are needed to try this out:
 - [Vagrant](https://www.vagrantup.com/downloads.html) >= v2.0.1
 - [OpenWhisk](https://github.com/apache/incubator-openwhisk.git)
 - [OpenWhisk CLI](https://github.com/apache/incubator-openwhisk-cli)
-- [Ballerina](https://ballerina.io/downloads/) >= 0.970.0 (Requires to build the Docker image)
+- [Ballerina](https://ballerina.io/downloads/) >= 0.974.1-SNAPSHOT (Requires to build the function)
 
 ## Quick Start Guide
 
@@ -34,23 +34,34 @@ The following prerequisites are needed to try this out:
    ```
     import ballerina/io;
     
-    function main (string... args) {
-        json output = { "hello": "world!" };
-        io:println(output);
+    function main(string... args) {
+       io:println("started");
+    }
+    
+    function ballerinaMain(json jsonInput) returns json {
+       json output = { "response": jsonInput};
+       return output;
     }
    ```
+   
+   Note that the ballerina file should include both **main(string... args)** function and **ballerinaMain(json 
+   jsonInput)**. main(string... args) function is used to compile the ballerina function
+   
+4. Run ballerina build hello-function.bal to build the above function.    
 
-4. Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
+5. Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
    
    ```bash
-   wsk action create hello-function hello-function.bal --docker mpmunasinghe/ballerina-runtime
+   wsk action create hello-function hello-function.balx
    ```
 
-5. Invoke the hello-function using the OpenWhisk CLI:
+6. Invoke the hello-function using the OpenWhisk CLI:
 
    ```bash
-   wsk action invoke hello-function --result
+   wsk action invoke hello-function --result -p myresult "hello"
    {
-       "hello": "world!"
+       "response": {
+           "myresult": "hello"
+       }
    }
    ```
