@@ -26,14 +26,14 @@
 
     <groupId>org.wso2.ballerina.runtime</groupId>
     <artifactId>ballerina-runtime</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.975.0</version>
 
     <name>Ballerina Runtime</name>
 
     <properties>
         <microservice.mainClass>org.ballerinalang.openwhisk.runtime.Application</microservice.mainClass>
         <slf4j.version>1.7.22</slf4j.version>
-        <ballerina.version>0.974.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.975.0</ballerina.version>
         <h2.version>1.4.197</h2.version>
     </properties>
 
@@ -42,6 +42,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.11</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -105,15 +110,12 @@
                     <filesets>
                         <fileset>
                             <directory>${basedir}/ballerina-runtime/lib</directory>
-                            <!--<includes>-->
-                                <!--<include></include>-->
-                            <!--</includes>-->
                             <followSymlinks>false</followSymlinks>
                         </fileset>
                         <fileset>
                             <directory>${basedir}/ballerina-runtime</directory>
                             <includes>
-                                <include>${project.artifactId}-${project.version}.jar</include>
+                                <include>${project.artifactId}*.jar</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
