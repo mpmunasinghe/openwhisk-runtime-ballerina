@@ -23,6 +23,7 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.msf4j.Request;
 
@@ -45,7 +46,7 @@ import javax.ws.rs.core.Response;
 
     @POST
     @Path("init")
-    public Response init(@Context Request request) {
+    public Response init(@Context Request request) throws IOException {
         JsonObject requestElements = BalxLoader.requestToJson(request).getAsJsonObject(Constants.JSON_VALUE);
         Boolean isBinary = requestElements.get(Constants.BINARY).getAsBoolean();
         if (isBinary) {
@@ -71,7 +72,7 @@ import javax.ws.rs.core.Response;
 
     @POST
     @Path("run")
-    public Response run(@Context Request request) {
+    public Response run(@Context Request request) throws IOException {
         Optional<ProgramFile> optionalValue = Optional.ofNullable(programFile);
 
         if (!optionalValue.isPresent()) {
@@ -85,7 +86,15 @@ import javax.ws.rs.core.Response;
         BValue[] parameters = new BValue[1];
         parameters[0] = bjson;
 
-        BalxLoader.initProgramFile(programFile);
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
+
+        if (debugger.isDebugEnabled()) {
+            debugger.init();
+            debugger.waitTillDebuggeeResponds();
+        }
+
+        programFile.initializeGlobalMemArea();
 
         BValue[] result = BLangFunctions
                 .invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), Constants.FUNCTION_CALLABLE_NAME,

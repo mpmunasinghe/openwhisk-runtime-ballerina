@@ -52,7 +52,7 @@ public class BalxLoader {
         return destinationPath;
     }
 
-    public static void initProgramFile (ProgramFile programFile){
+    public static ProgramFile initProgramFile (ProgramFile programFile){
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
 
@@ -62,9 +62,10 @@ public class BalxLoader {
         }
 
         programFile.initializeGlobalMemArea();
+        return programFile;
     }
 
-    public static JsonObject requestToJson(Request request) {
+    public static JsonObject requestToJson(Request request) throws IOException {
         JsonParser parser = new JsonParser();
         List<ByteBuffer> byteBuffers = request.getFullMessageBody();
         StringBuilder req = new StringBuilder();

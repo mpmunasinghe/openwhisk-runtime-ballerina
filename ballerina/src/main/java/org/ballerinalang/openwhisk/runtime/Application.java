@@ -25,6 +25,7 @@ import org.wso2.msf4j.MicroservicesRunner;
  */
 public class Application {
     public static void main(String[] args) throws Exception {
+        //System.setProperty("ballerina.home","/Library/Ballerina/ballerina-0.975.0");
         new MicroservicesRunner().deploy(new BallerinaProxy()).start();
     }
 }
