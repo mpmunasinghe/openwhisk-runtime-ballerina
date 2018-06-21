@@ -25,6 +25,6 @@ import org.wso2.msf4j.MicroservicesRunner;
  */
 public class Application {
     public static void main(String[] args) throws Exception {
-        new MicroservicesRunner().deploy(new BallerinaProxy()).start();
+        new MicroservicesRunner(8080).deploy(new BallerinaProxy()).start();
     }
 }
