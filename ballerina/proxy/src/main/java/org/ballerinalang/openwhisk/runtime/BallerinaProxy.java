@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.ballerinalang.openwhisk.runtime;
@@ -46,7 +45,8 @@ import javax.ws.rs.core.Response;
 
     @POST
     @Path("init")
-    public Response init(@Context Request request) {
+    public Response init(@Context Request request) throws IOException {
+        InputStream balxIs = null;
         try {
             JsonObject requestElements = BalxLoader.requestToJson(request).getAsJsonObject(Constants.JSON_VALUE);
             Boolean isBinary = requestElements.get(Constants.BINARY).getAsBoolean();
@@ -54,7 +54,8 @@ import javax.ws.rs.core.Response;
             // Check for binary value. .balx should be received with the binary parameter
             if (isBinary) {
                 String base64Balx = requestElements.get(Constants.CODE).getAsString();
-                InputStream balxIs = new ByteArrayInputStream(base64Balx.getBytes(StandardCharsets.UTF_8));
+
+                balxIs = new ByteArrayInputStream(base64Balx.getBytes(StandardCharsets.UTF_8));
 
                 java.nio.file.Path destinationPath = BalxLoader.saveBase64EncodedFile(balxIs);
 
@@ -71,6 +72,10 @@ import javax.ws.rs.core.Response;
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
                            .entity("{ 'error' : 'Internal server error'}").build();
+        } finally {
+            if (balxIs != null) {
+                balxIs.close();
+            }
         }
     }
 
@@ -88,27 +93,22 @@ import javax.ws.rs.core.Response;
 
         programFile = BalxLoader.initProgramFile(programFile);
 
-        try {
-            requestElements = BalxLoader.requestToJson(request);
+        requestElements = BalxLoader.requestToJson(request);
 
-            BValue bJson = new BJSON(requestElements.getAsJsonObject(Constants.JSON_VALUE).toString());
-            BValue[] parameters = new BValue[1];
-            parameters[0] = bJson;
+        BValue bJson = new BJSON(requestElements.getAsJsonObject(Constants.JSON_VALUE).toString());
+        BValue[] parameters = new BValue[1];
+        parameters[0] = bJson;
 
-            BValue[] result = BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(),
-                                                                      Constants.FUNCTION_CALLABLE_NAME, parameters);
+        BValue[] result = BLangFunctions
+                .invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), Constants.FUNCTION_CALLABLE_NAME,
+                                          parameters);
 
-            StringBuilder response = new StringBuilder();
-            for (BValue bValue : result) {
-                response.append(bValue.stringValue());
-            }
-            return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                           .entity(response.toString()).build();
-        } catch (IOException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                           .entity("{'error' : 'Internal server error'}").build();
+        StringBuilder response = new StringBuilder();
+        for (BValue bValue : result) {
+            response.append(bValue.stringValue());
         }
+        return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                       .entity(response.toString()).build();
     }
 
 }

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.ballerinalang.openwhisk.runtime;
@@ -49,18 +48,23 @@ public class BalxLoader {
      * @throws IOException
      */
     public static Path saveBase64EncodedFile(InputStream encoded) throws IOException {
-        Base64.Decoder decoder = Base64.getDecoder();
+        InputStream decoded = null;
+        try {
+            Base64.Decoder decoder = Base64.getDecoder();
 
-        InputStream decoded = decoder.wrap(encoded);
+            decoded = decoder.wrap(encoded);
 
-        File destinationFile = File.createTempFile(Constants.FUNCTION_FILE_NAME, Constants.FUNCTION_EXTENSION);
-        destinationFile.deleteOnExit();
-        Path destinationPath = destinationFile.toPath();
+            File destinationFile = File.createTempFile(Constants.FUNCTION_FILE_NAME, Constants.FUNCTION_EXTENSION);
+            destinationFile.deleteOnExit();
+            Path destinationPath = destinationFile.toPath();
 
-        Files.copy(decoded, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-        decoded.close();
-
-        return destinationPath;
+            Files.copy(decoded, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            return destinationPath;
+        } finally {
+            if (decoded != null) {
+                decoded.close();
+            }
+        }
     }
 
     /**
@@ -88,11 +92,9 @@ public class BalxLoader {
      *
      * @param request Request object received in http call
      * @return JSON formatted request object
-     * @throws IOException
      */
-    public static JsonObject requestToJson(Request request) throws IOException {
+    public static JsonObject requestToJson(Request request) {
         JsonParser parser = new JsonParser();
-
         List<ByteBuffer> byteBuffers = request.getFullMessageBody();
         StringBuilder req = new StringBuilder();
         for (ByteBuffer buffer : byteBuffers) {
@@ -100,4 +102,6 @@ public class BalxLoader {
         }
         return parser.parse(req.toString()).getAsJsonObject();
     }
+
+
 }
