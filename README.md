@@ -1,56 +1,100 @@
+<!--
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+-->
+
 # Apache OpenWhisk Runtime for Ballerina
 
-This repository contains the [Ballerina](https://ballerinalang.org) hellonative extension for Apache OpenWhisk serverless platform.
+This repository contains the [Ballerina](https://ballerinalang.org) extension for Apache OpenWhisk serverless platform.
 
 ## Prerequisites
 
 The following prerequisites are needed to try this out:
 
-- [Vagrant](https://www.vagrantup.com/downloads.html) >= v2.0.1
-- [OpenWhisk](https://github.com/apache/incubator-openwhisk.git)
-- [OpenWhisk CLI](https://github.com/apache/incubator-openwhisk-cli)
-- [Ballerina](https://ballerina.io/downloads/) >= 0.970.0 (Requires to build the Docker image)
+- [Ballerina](https://ballerina.io/downloads/) >= 0.975.0 
 
-## Quick Start Guide
+## Quick Ballerina Action
 
-1. Install OpenWhisk using Vagrant:
-
-   ```bash
-   # Clone OpenWhisk git repository
-   git clone --depth=1 https://github.com/apache/incubator-openwhisk.git openwhisk
-
-   # Switch the directory to tools/vagrant
-   cd openwhisk/tools/vagrant
-
-   # Start OpenWhisk instance
-   vagrant up
-   ```
-
-2. Install OpenWhisk CLI by following it's installation guide:
-   https://github.com/apache/incubator-openwhisk-cli
-
-3. Create a Ballerina function file with the following content and name it as hello-function.bal:
+ Create a Ballerina function file with the following content and name it as hello-function.bal:
 
    ```
     import ballerina/io;
     
-    function main (string... args) {
-        json output = { "hello": "world!" };
-        io:println(output);
+    function main(string... args) {
+       io:println("started");
+    }
+    
+    function run(json jsonInput) returns json {
+       io:println(jsonInput);
+       json output = { "response": "hello-world"};
+       return output;
     }
    ```
-
-4. Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
    
-   ```bash
-   wsk action create hello-function hello-function.bal --docker mpmunasinghe/ballerina-runtime
+   Note that the ballerina file should include both **main(string... args)** function and **run(json 
+   jsonInput)**. main(string... args) function is used to compile the ballerina function
+   
+ Run ballerina build hello-function.bal to build the above function. 
+    
+    
+### Create the Ballerina Action
+Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
+
+To use as a docker action:
+
+```bash
+wsk action update hello-function hello-function.balx --docker us.gcr.io/inner-deck-199908/ballerina-runtime2
+```
+
+To use on a deployment of OpenWhisk that contains the runtime as a kind:
+   
+```bash
+wsk action create hello-function hello-function.balx
+```
+
+### Invoke the Ballerina Action
+Invoke the hello-function using the OpenWhisk CLI:
+
+```bash
+wsk action invoke hello-function --result
+{
+    "response": "hello-world"
+}
    ```
 
-5. Invoke the hello-function using the OpenWhisk CLI:
+### Testing
+Install dependencies from the root directory on $OPENWHISK_HOME repository
+```
+pushd $OPENWHISK_HOME
+./gradlew install
+podd $OPENWHISK_HOME
+```
 
-   ```bash
-   wsk action invoke hello-function --result
-   {
-       "hello": "world!"
-   }
-   ```
+Using gradle to run all tests
+```
+./gradlew :tests:test
+```
+Using gradle to run some tests
+```
+./gradlew :tests:test --tests *ActionContainerTests*
+```
+Using IntelliJ:
+- Import project as gradle project.
+- Make sure working directory is root of the project/repo
+
+# License
+[Apache 2.0](LICENSE.txt)
