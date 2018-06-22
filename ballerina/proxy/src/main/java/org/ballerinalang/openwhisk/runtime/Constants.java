@@ -18,14 +18,16 @@
 
 package org.ballerinalang.openwhisk.runtime;
 
+/**
+ * Constant variables included in
+ */
 class Constants {
+    static final int PROXY_PORT = 8080;
     static final String JSON_VALUE = "value";
     static final String BINARY = "binary";
     static final String CODE = "code";
     static final String IDENTITY = "identity";
-    static final String FUNCTION_CALLABLE_NAME = "ballerinaMain";
+    static final String FUNCTION_CALLABLE_NAME = "run";
     static final String FUNCTION_FILE_NAME = "function";
     static final String FUNCTION_EXTENSION = ".balx";
-
-
 }

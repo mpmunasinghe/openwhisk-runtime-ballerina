@@ -23,7 +23,6 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.msf4j.Request;
 
@@ -39,74 +38,77 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
- * OpenWhisk Ballerina Proxy runtime Service
+ * OpenWhisk Ballerina Runtime Proxy Service
+ * Exposes /init and /run resources
  */
 @Path("/") public class BallerinaProxy {
     private ProgramFile programFile;
 
     @POST
     @Path("init")
-    public Response init(@Context Request request) throws IOException {
-        JsonObject requestElements = BalxLoader.requestToJson(request).getAsJsonObject(Constants.JSON_VALUE);
-        Boolean isBinary = requestElements.get(Constants.BINARY).getAsBoolean();
-        if (isBinary) {
-            String base64Balx = requestElements.get(Constants.CODE).getAsString();
-            InputStream balxIs = new ByteArrayInputStream(base64Balx.getBytes(StandardCharsets.UTF_8));
-            try {
+    public Response init(@Context Request request) {
+        try {
+            JsonObject requestElements = BalxLoader.requestToJson(request).getAsJsonObject(Constants.JSON_VALUE);
+            Boolean isBinary = requestElements.get(Constants.BINARY).getAsBoolean();
+
+            // Check for binary value. .balx should be received with the binary parameter
+            if (isBinary) {
+                String base64Balx = requestElements.get(Constants.CODE).getAsString();
+                InputStream balxIs = new ByteArrayInputStream(base64Balx.getBytes(StandardCharsets.UTF_8));
+
                 java.nio.file.Path destinationPath = BalxLoader.saveBase64EncodedFile(balxIs);
 
                 programFile = BLangProgramLoader.read(destinationPath);
 
                 return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                               .entity("{ 'success' : 'function init success'}").build();
-            } catch (IOException e) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                               .entity("{ 'success' : 'Function init success'}").build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
                                .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                               .entity("{ 'error' : 'Internal Server Error'}").build();
+                               .entity("{ 'error' : 'Bad content request'}").build();
             }
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                           .entity("{ 'error' : 'Bad content request'}").build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity("{ 'error' : 'Internal server error'}").build();
         }
     }
 
     @POST
     @Path("run")
-    public Response run(@Context Request request) throws IOException {
+    public Response run(@Context Request request) {
         Optional<ProgramFile> optionalValue = Optional.ofNullable(programFile);
+        JsonObject requestElements;
 
+        // Check whether init function has success and the program file is set
         if (!optionalValue.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity("{ 'error' : 'Function not initialized'}").build();
+        }
+
+        programFile = BalxLoader.initProgramFile(programFile);
+
+        try {
+            requestElements = BalxLoader.requestToJson(request);
+
+            BValue bJson = new BJSON(requestElements.getAsJsonObject(Constants.JSON_VALUE).toString());
+            BValue[] parameters = new BValue[1];
+            parameters[0] = bJson;
+
+            BValue[] result = BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(),
+                                                                      Constants.FUNCTION_CALLABLE_NAME, parameters);
+
+            StringBuilder response = new StringBuilder();
+            for (BValue bValue : result) {
+                response.append(bValue.stringValue());
+            }
+            return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity(response.toString()).build();
+        } catch (IOException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                           .entity("{ 'error' : 'Internal Server Error'}").build();
+                           .entity("{'error' : 'Internal server error'}").build();
         }
-
-        JsonObject requestElements = BalxLoader.requestToJson(request);
-        BValue bjson = new BJSON(requestElements.getAsJsonObject(Constants.JSON_VALUE).toString());
-        BValue[] parameters = new BValue[1];
-        parameters[0] = bjson;
-
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-
-        if (debugger.isDebugEnabled()) {
-            debugger.init();
-            debugger.waitTillDebuggeeResponds();
-        }
-
-        programFile.initializeGlobalMemArea();
-
-        BValue[] result = BLangFunctions
-                .invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), Constants.FUNCTION_CALLABLE_NAME,
-                                          parameters);
-
-        StringBuilder response = new StringBuilder();
-        for (BValue bValue : result) {
-            response.append(bValue.stringValue());
-        }
-        return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                       .entity(response.toString()).build();
-
     }
 
 }

@@ -21,10 +21,10 @@ package org.ballerinalang.openwhisk.runtime;
 import org.wso2.msf4j.MicroservicesRunner;
 
 /**
- * Application entry point.
+ * Starts the Ballerina Runtime Proxy on port 8080
  */
 public class Application {
-    public static void main(String[] args) throws Exception {
-        new MicroservicesRunner(8080).deploy(new BallerinaProxy()).start();
+    public static void main(String[] args) {
+        new MicroservicesRunner(Constants.PROXY_PORT).deploy(new BallerinaProxy()).start();
     }
 }

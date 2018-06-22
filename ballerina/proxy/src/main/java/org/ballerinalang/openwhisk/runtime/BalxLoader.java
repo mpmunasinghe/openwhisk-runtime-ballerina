@@ -20,7 +20,6 @@ package org.ballerinalang.openwhisk.runtime;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.msf4j.Request;
@@ -28,14 +27,27 @@ import org.wso2.msf4j.Request;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.List;
 
+/**
+ * Loader Utils for proxy handlers.
+ */
 public class BalxLoader {
 
+    /**
+     * Writes the received encoded input stream to function.balx file.
+     *
+     * @param encoded Base64 Encoded Input Stream
+     * @return Path to function.balx
+     * @throws IOException
+     */
     public static Path saveBase64EncodedFile(InputStream encoded) throws IOException {
         Base64.Decoder decoder = Base64.getDecoder();
 
@@ -46,11 +58,19 @@ public class BalxLoader {
         Path destinationPath = destinationFile.toPath();
 
         Files.copy(decoded, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+        decoded.close();
 
         return destinationPath;
     }
 
-    public static ProgramFile initProgramFile (ProgramFile programFile){
+    /**
+     * Initializes the program file debugger and Global Memory area
+     *
+     * @param programFile Program File object to initialize
+     * @return Initialized program file with debugger and Global Memory
+     */
+
+    public static ProgramFile initProgramFile(ProgramFile programFile) {
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
 
@@ -63,17 +83,21 @@ public class BalxLoader {
         return programFile;
     }
 
+    /**
+     * Parsing the received request object to JSON.
+     *
+     * @param request Request object received in http call
+     * @return JSON formatted request object
+     * @throws IOException
+     */
     public static JsonObject requestToJson(Request request) throws IOException {
         JsonParser parser = new JsonParser();
-        //List<ByteBuffer> byteBuffers = request.getFullMessageBody();
-        InputStream inputStream = request.getMessageContentStream();
-        String inputString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-//        StringBuilder req = new StringBuilder();
-//        for (ByteBuffer buffer : byteBuffers) {
-//            req.append(Charset.forName(StandardCharsets.UTF_8.name()).decode(buffer).toString());
-//        }
-//        return parser.parse(req.toString()).getAsJsonObject();
-        return parser.parse(inputString).getAsJsonObject();
-    }
 
+        List<ByteBuffer> byteBuffers = request.getFullMessageBody();
+        StringBuilder req = new StringBuilder();
+        for (ByteBuffer buffer : byteBuffers) {
+            req.append(Charset.forName(StandardCharsets.UTF_8.name()).decode(buffer).toString());
+        }
+        return parser.parse(req.toString()).getAsJsonObject();
+    }
 }

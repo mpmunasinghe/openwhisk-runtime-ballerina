@@ -21,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    compile "org.wso2.msf4j:msf4j-service:2.6.2"
-    compile ("org.wso2.transport.http:org.wso2.transport.http.netty:6.0.175"){
+    compile "org.wso2.msf4j:msf4j-service:2.4.2"
+    compile ("org.wso2.msf4j:msf4j-core:2.4.2"){
         force = true
     }
     compile "org.ballerinalang:ballerina-core:0.975.0"

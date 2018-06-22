@@ -4,8 +4,8 @@ function main(string... args) {
    io:println("started");
 }
 
-function ballerinaMain(json jsonInput) returns json {
+function run(json jsonInput) returns json {
    io:println(jsonInput);
-   json output = { "response": "hellow-world"};
+   json output = { "response": "hello-world"};
    return output;
 }
