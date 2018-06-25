@@ -25,18 +25,18 @@ This repository contains the [Ballerina](https://ballerinalang.org) extension fo
 
 The following prerequisites are needed to try this out:
 
-- [Ballerina](https://ballerina.io/downloads/) >= 0.975.0 
+- [Ballerina](https://ballerina.io/downloads/) >= 0.975.0
 
 ## Quick Ballerina Action
 
  Create a Ballerina function file with the following content and name it as hello-function.bal:
 
-   ```
+   ```ballerina
     import ballerina/io;
     
     function main(string... args) {
        io:println("started");
-    }
+    }    
     
     function run(json jsonInput) returns json {
        io:println(jsonInput);
@@ -44,13 +44,12 @@ The following prerequisites are needed to try this out:
        return output;
     }
    ```
+
+Note that the ballerina file should include both **main(string... args)** function and **run(json 
+jsonInput)**. main(string... args) function is used to compile the ballerina function
+
+Run ballerina build hello-function.bal to build the above function.   
    
-   Note that the ballerina file should include both **main(string... args)** function and **run(json 
-   jsonInput)**. main(string... args) function is used to compile the ballerina function
-   
- Run ballerina build hello-function.bal to build the above function. 
-    
-    
 ### Create the Ballerina Action
 Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
 
@@ -61,7 +60,7 @@ wsk action update hello-function hello-function.balx --docker us.gcr.io/inner-de
 ```
 
 To use on a deployment of OpenWhisk that contains the runtime as a kind:
-   
+
 ```bash
 wsk action create hello-function hello-function.balx
 ```
@@ -74,22 +73,22 @@ wsk action invoke hello-function --result
 {
     "response": "hello-world"
 }
-   ```
+```
 
 ### Testing
 Install dependencies from the root directory on $OPENWHISK_HOME repository
-```
+```bash
 pushd $OPENWHISK_HOME
 ./gradlew install
 podd $OPENWHISK_HOME
 ```
 
 Using gradle to run all tests
-```
+```bash
 ./gradlew :tests:test
 ```
 Using gradle to run some tests
-```
+```bash
 ./gradlew :tests:test --tests *ActionContainerTests*
 ```
 Using IntelliJ:
