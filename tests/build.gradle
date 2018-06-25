@@ -37,6 +37,16 @@ dependencies {
     compile "org.scala-lang:scala-library:${gradle.scala.version}"
     compile "org.apache.openwhisk:openwhisk-tests:${gradle.openwhisk.version}:tests"
     compile "org.apache.openwhisk:openwhisk-tests:${gradle.openwhisk.version}:test-sources"
+//    compile "org.ballerinalang:ballerina-core:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-lang:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-grpc:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:protobuf-ballerina:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-builtin:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-http:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-transactions:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-database:${gradle.ballerina.version}"
+//    compile "org.ballerinalang:ballerina-micrometer-extension:${gradle.ballerina.version}"
+//    compile "org.slf4j:slf4j-api:1.7.22"
 }
 
 tasks.withType(ScalaCompile) {

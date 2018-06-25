@@ -36,3 +36,7 @@ gradle.ext.scalafmt = [
         config: new File(rootProject.projectDir, '.scalafmt.conf')
 ]
 
+gradle.ext.ballerina = [
+        version: '0.975.0'
+]
+

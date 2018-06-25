@@ -42,15 +42,15 @@ dependencies {
     compile ("org.wso2.msf4j:msf4j-core:2.4.2") {
         force = true
     }
-    compile "org.ballerinalang:ballerina-core:0.975.0"
-    compile "org.ballerinalang:ballerina-lang:0.975.0"
-    compile "org.ballerinalang:ballerina-grpc:0.975.0"
-    compile "org.ballerinalang:protobuf-ballerina:0.975.0"
-    compile "org.ballerinalang:ballerina-builtin:0.975.0"
-    compile "org.ballerinalang:ballerina-http:0.975.0"
-    compile "org.ballerinalang:ballerina-transactions:0.975.0"
-    compile "org.ballerinalang:ballerina-database:0.975.0"
-    compile "org.ballerinalang:ballerina-micrometer-extension:0.975.0"
+    compile "org.ballerinalang:ballerina-core:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-lang:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-grpc:${gradle.ballerina.version}"
+    compile "org.ballerinalang:protobuf-ballerina:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-builtin:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-http:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-transactions:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-database:${gradle.ballerina.version}"
+    compile "org.ballerinalang:ballerina-micrometer-extension:${gradle.ballerina.version}"
     compile "org.slf4j:slf4j-api:1.7.22"
 
 }
