@@ -19,11 +19,16 @@ package actionContainers
 
 import actionContainers.ActionContainer.withContainer
 import common.WskActorSystem
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 import java.util.Base64
+
+import org.ballerinalang.compiler.CompilerPhase
+import org.ballerinalang.compiler.CompilerOptionName.{COMPILER_PHASE, OFFLINE, PROJECT_DIR}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.wso2.ballerinalang.compiler.Compiler
+import org.wso2.ballerinalang.compiler.util.{CompilerContext, CompilerOptions}
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog
 import spray.json._
 
 @RunWith(classOf[JUnitRunner])
@@ -38,9 +43,8 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
 
   it should "Initialize with the hello code" in {
     val (out, err) = withBallerinaContainer { c =>
-      val path = getClass.getResource("/hello-function.balx").getPath
-      val encoded = Base64.getEncoder.encode(Files.readAllBytes(Paths.get(path)))
-      val sourceString = new String(encoded, "UTF-8")
+      val sourceString = buildBal("hello-function")
+      sourceString should not be "Build Error"
 
       val (initCode, _) = c.init(initPayload(sourceString))
       initCode should be(200)
@@ -48,5 +52,31 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
       val (runCode, runRes) = c.run(runPayload(JsObject()))
       runRes should be(Some(JsObject("response" -> JsString("hello-world"))))
     }
+  }
+
+  def buildBal(functionName: String): String = {
+    // Set Ballerina home path to resolve dependency libs
+    val ballerinaHome = Paths.get(System.getProperty("user.dir"), "..", "ballerina", "proxy", "build")
+    System.setProperty("ballerina.home", ballerinaHome.toString)
+
+    val path = getClass.getResource("/".concat(functionName)).getPath
+    val context = new CompilerContext
+    val options = CompilerOptions.getInstance(context)
+
+    options.put(PROJECT_DIR, path.toString)
+    options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString)
+    options.put(OFFLINE, "true")
+
+    val compiler = Compiler.getInstance(context)
+    compiler.build()
+
+    val diagnosticLog = BLangDiagnosticLog.getInstance(context)
+    if (diagnosticLog.errorCount > 0) {
+      return "Build Error"
+    }
+
+    val balxPath = Paths.get(path, functionName.concat(".balx"))
+    val encoded = Base64.getEncoder.encode(Files.readAllBytes(balxPath))
+    new String(encoded, "UTF-8")
   }
 }
