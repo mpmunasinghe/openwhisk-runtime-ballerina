@@ -30,15 +30,13 @@ IMAGE_PREFIX=$1
 IMAGE_TAG=$2
 
 if [[ ! -z ${DOCKER_USER} ]] && [[ ! -z ${DOCKER_PASSWORD} ]]; then
-echo "~~~~~~~~~~~~~~~~~~"
-docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}" us.gcr.io
-echo "~~~~~~~~~~~~~~~~~~"
+docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
 fi
 
 if [[ ! -z ${RUNTIME} ]]; then
 TERM=dumb ./gradlew \
 :ballerina:distDocker \
--PdockerRegistry=us.gcr.io/inner-deck-199908 \
+-PdockerRegistry=docker.io \
 -PdockerImagePrefix=${IMAGE_PREFIX} \
 -PdockerImageTag=${IMAGE_TAG}
 fi

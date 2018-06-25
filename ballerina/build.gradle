@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-ext.dockerImageName = 'ballerina-runtime2'
-ext.dockerImagePrefix = "inner-deck-199908"
-ext.dockerRegistry = "us.gcr.io"
+ext.dockerImageName = 'balaction'
+ext.dockerImagePrefix = "mpmunasinghe"
 apply from: '../gradle/docker.gradle'

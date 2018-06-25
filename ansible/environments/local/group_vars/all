@@ -32,7 +32,7 @@ env_hosts_dir: "{{ playbook_dir }}/environments/local"
 
 skip_pull_runtimes: true
 runtimes_manifest:
-  defaultImagePrefix: "us.gcr.io/inner-deck-199908"
+  defaultImagePrefix: "mpmunasinghe"
   defaultImageTag: "latest"
   runtimes:
     nodejs:
@@ -45,7 +45,7 @@ runtimes_manifest:
     - kind: "ballerina"
       default: true
       image:
-        name: "ballerina-runtime2"
+        name: "balaction"
       deprecated: false
       sentinelledLogs: false
       "stemCells": [{

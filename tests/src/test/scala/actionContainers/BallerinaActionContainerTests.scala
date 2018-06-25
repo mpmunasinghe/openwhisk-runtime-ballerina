@@ -29,7 +29,7 @@ import spray.json._
 @RunWith(classOf[JUnitRunner])
 class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with WskActorSystem {
 
-  lazy val ballerinaContainerImageName = "us.gcr.io/inner-deck-199908/ballerina-runtime2"
+  lazy val ballerinaContainerImageName = "mpmunasinghe/balaction"
 
   def withBallerinaContainer(code: ActionContainer => Unit, env: Map[String, String] = Map.empty) =
     withContainer(ballerinaContainerImageName, env)(code)
