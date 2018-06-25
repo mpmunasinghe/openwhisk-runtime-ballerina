@@ -19,6 +19,8 @@
 
 # Apache OpenWhisk Runtime for Ballerina
 
+[![Build Status](https://travis-ci.com/mpmunasinghe/openwhisk-runtime-ballerina.svg?branch=master)](https://travis-ci.com/mpmunasinghe/openwhisk-runtime-ballerina)
+
 This repository contains the [Ballerina](https://ballerinalang.org) extension for Apache OpenWhisk serverless platform.
 
 ## Prerequisites
