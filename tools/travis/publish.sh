@@ -30,7 +30,9 @@ IMAGE_PREFIX=$1
 IMAGE_TAG=$2
 
 if [[ ! -z ${DOCKER_USER} ]] && [[ ! -z ${DOCKER_PASSWORD} ]]; then
-docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+echo "~~~~~~~~~~~~~~~~~~"
+docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}" us.gcr.io
+echo "~~~~~~~~~~~~~~~~~~"
 fi
 
 if [[ ! -z ${RUNTIME} ]]; then
