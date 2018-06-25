@@ -30,6 +30,7 @@ invoker_allow_multiple_instances: true
 
 env_hosts_dir: "{{ playbook_dir }}/environments/local"
 
+skip_pull_runtimes: true
 runtimes_manifest:
   defaultImagePrefix: "us.gcr.io/inner-deck-199908"
   defaultImageTag: "latest"
