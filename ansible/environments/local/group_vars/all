@@ -44,7 +44,7 @@ runtimes_manifest:
     - kind: "ballerina"
       default: true
       image:
-        name: "ballerina-runtime"
+        name: "ballerina-runtime2"
       deprecated: false
       sentinelledLogs: false
       "stemCells": [{
