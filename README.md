@@ -33,11 +33,9 @@ The following prerequisites are needed to try this out:
 
    ```ballerina
     import ballerina/io;
-    
     function main(string... args) {
        io:println("started");
-    }    
-    
+    }        
     function run(json jsonInput) returns json {
        io:println(jsonInput);
        json output = { "response": "hello-world"};
@@ -48,8 +46,8 @@ The following prerequisites are needed to try this out:
 Note that the ballerina file should include both **main(string... args)** function and **run(json 
 jsonInput)**. main(string... args) function is used to compile the ballerina function
 
-Run ballerina build hello-function.bal to build the above function.   
-   
+Run ```ballerina build hello-function.bal``` to build the above function. [Ballerina](https://ballerina.io/downloads/)  
+  
 ### Create the Ballerina Action
 Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
 
