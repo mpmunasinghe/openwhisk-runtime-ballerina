@@ -33,7 +33,7 @@ mainClassName = 'org.ballerinalang.openwhisk.runtime.Application'
 
 repositories {
     mavenCentral()
-    maven { url "http://maven.wso2.org/nexus/content/repositories/releases" }
+    maven { url "https://maven.wso2.org/nexus/content/repositories/public/org/ballerinalang" }
     maven { url "http://maven.wso2.org/nexus/content/groups/wso2-public" }
 }
 
@@ -52,7 +52,6 @@ dependencies {
     compile "org.ballerinalang:ballerina-database:0.975.0"
     compile "org.ballerinalang:ballerina-micrometer-extension:0.975.0"
     compile "org.slf4j:slf4j-api:1.7.22"
-
 }
 
 task wrapper(type: Wrapper) {
