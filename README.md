@@ -54,7 +54,7 @@ Create an OpenWhisk action for the above Ballerina function using the OpenWhisk 
 To use as a docker action:
 
 ```bash
-wsk action update hello-function hello-function.balx --docker us.gcr.io/inner-deck-199908/ballerina-runtime2
+wsk action update hello-function hello-function.balx --docker mpmunasinghe/balaction
 ```
 
 To use on a deployment of OpenWhisk that contains the runtime as a kind:
