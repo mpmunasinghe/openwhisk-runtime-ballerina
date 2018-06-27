@@ -84,6 +84,7 @@ import javax.ws.rs.core.Response;
     public Response run(@Context Request request) {
         Optional<ProgramFile> optionalValue = Optional.ofNullable(programFile);
         JsonObject requestElements;
+        BValue[] result;
 
         // Check whether init function has success and the program file is set
         if (!optionalValue.isPresent()) {
@@ -99,9 +100,13 @@ import javax.ws.rs.core.Response;
         BValue[] parameters = new BValue[1];
         parameters[0] = bJson;
 
-        BValue[] result = BLangFunctions
-                .invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), Constants.FUNCTION_CALLABLE_NAME,
-                                          parameters);
+        try {
+            result = BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(),
+                                                             Constants.FUNCTION_CALLABLE_NAME, parameters);
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity("{ 'error' : 'Running Function failed'}").build();
+        }
 
         StringBuilder response = new StringBuilder();
         for (BValue bValue : result) {

@@ -41,16 +41,64 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
 
   behavior of ballerinaContainerImageName
 
-  it should "Initialize with the hello code" in {
+  it should "Initialize with the hello-function code and invoke" in {
     val (out, err) = withBallerinaContainer { c =>
-      val sourceString = buildBal("hello-function")
-      sourceString should not be "Build Error"
+      val sourceFile = buildBal("hello-function")
+      sourceFile should not be "Build Error"
 
-      val (initCode, _) = c.init(initPayload(sourceString))
+      val (initCode, _) = c.init(initPayload(sourceFile))
       initCode should be(200)
 
       val (runCode, runRes) = c.run(runPayload(JsObject()))
       runRes should be(Some(JsObject("response" -> JsString("hello-world"))))
+    }
+  }
+
+  it should "Initialize with function returning the response and invoke" in {
+    val (out, err) = withBallerinaContainer { c =>
+      val sourceFile = buildBal("return-response")
+      sourceFile should not be "Build Error"
+
+      val (initCode, _) = c.init(initPayload(sourceFile))
+      initCode should be(200)
+
+      val (runCode, runRes) = c.run(runPayload(JsObject("response" -> JsString("hello-world"))))
+      runRes should be(Some(JsObject("response" -> JsString("hello-world"))))
+    }
+  }
+
+  it should "Ballerina code with no run function" in {
+    val (out, err) = withBallerinaContainer { c =>
+      val sourceFile = buildBal("fail-function")
+      sourceFile should not be "Build Error"
+
+      val (initCode, _) = c.init(initPayload(sourceFile))
+      initCode should be(200)
+
+      val (runCode, _) = c.run(runPayload(JsObject("response" -> JsString("hello-world"))))
+      runCode should be(400)
+    }
+  }
+
+  it should "fail to initialize with bad code" in {
+    val (out, err) = withBallerinaContainer { c =>
+      // This is valid zip file containing a single file, but not a valid
+      // balx file.
+      val brokenFile = ("UEsDBAoAAAAAAPxYbkhT4iFbCgAAAAoAAAANABwAbm90YWNsYXNzZmlsZVV" +
+        "UCQADzNPmVszT5lZ1eAsAAQT1AQAABAAAAABzYXVjaXNzb24KUEsBAh4DCg" +
+        "AAAAAA/FhuSFPiIVsKAAAACgAAAA0AGAAAAAAAAQAAAKSBAAAAAG5vdGFjb" +
+        "GFzc2ZpbGVVVAUAA8zT5lZ1eAsAAQT1AQAABAAAAABQSwUGAAAAAAEAAQBT" +
+        "AAAAUQAAAAAA")
+
+      val (initCode, _) = c.init(initPayload("example.Broken", brokenFile))
+      initCode should not be (200)
+    }
+  }
+
+  it should "Fail for a direct call to run response with 400" in {
+    val (out, err) = withBallerinaContainer { c =>
+      val (runCode, runRes) = c.run(runPayload(JsObject()))
+      runCode should be(400)
     }
   }
 
