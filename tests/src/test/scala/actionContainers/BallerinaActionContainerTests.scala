@@ -67,7 +67,7 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
     }
   }
 
-  it should "Ballerina code with no run function" in {
+  it should "should fail for Ballerina code with no run function" in {
     val (out, err) = withBallerinaContainer { c =>
       val sourceFile = buildBal("fail-function")
       sourceFile should not be "Build Error"
@@ -95,7 +95,7 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
     }
   }
 
-  it should "Fail for a direct call to run response with 400" in {
+  it should "fail for a direct call to run response with 400" in {
     val (out, err) = withBallerinaContainer { c =>
       val (runCode, runRes) = c.run(runPayload(JsObject()))
       runCode should be(400)
