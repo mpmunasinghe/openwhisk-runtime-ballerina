@@ -32,12 +32,15 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog
 import spray.json._
 
 @RunWith(classOf[JUnitRunner])
-class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with WskActorSystem {
+class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActorSystem {
 
   lazy val ballerinaContainerImageName = "mpmunasinghe/balaction"
 
-  def withBallerinaContainer(code: ActionContainer => Unit, env: Map[String, String] = Map.empty) =
+  override def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
     withContainer(ballerinaContainerImageName, env)(code)
+  }
+
+  def withBallerinaContainer(code: ActionContainer => Unit) = withActionContainer()(code)
 
   behavior of ballerinaContainerImageName
 
