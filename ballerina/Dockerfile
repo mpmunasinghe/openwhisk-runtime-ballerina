@@ -36,8 +36,8 @@ ADD proxy /home/ballerina
 RUN cd /home/ballerina \
     && rm -rf .classpath .gitignore .gradle .project .settings Dockerfile build \
     && ./gradlew shadowJar \
-    && rm -rf /home/ballerina/src \
+    && rm -rf /home/ballerina/src
 
-EXPOSE  8080
+EXPOSE 8080
 
 CMD java -Dballerina.home=/home/ballerina/build -jar /home/ballerina/build/libs/ballerina-all.jar --http.port=8080
