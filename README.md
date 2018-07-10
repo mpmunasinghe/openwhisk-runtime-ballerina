@@ -18,80 +18,100 @@
 -->
 
 # Apache OpenWhisk Runtime for Ballerina
-
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.com/mpmunasinghe/openwhisk-runtime-ballerina.svg?branch=master)](https://travis-ci.com/mpmunasinghe/openwhisk-runtime-ballerina)
 
-This repository contains the [Ballerina](https://ballerinalang.org) extension for Apache OpenWhisk serverless platform.
+This repository contains the [Ballerina](https://ballerinalang.org) runtime for the Apache OpenWhisk serverless platform.
 
-## Prerequisites
+### Prerequisites
 
 The following prerequisites are needed to try this out:
 
 - [Ballerina](https://ballerina.io/downloads/) >= 0.975.0
 
-## Quick Ballerina Action
+### Creating a Ballerina function
 
- Create a Ballerina function file with the following content and name it as hello-function.bal:
+Create a file `hello.bal` for your Ballerina function with the following code:
 
-   ```ballerina
-    import ballerina/io;
-    function main(string... args) {
-       io:println("started");
-    }
-    function run(json jsonInput) returns json {
-       io:println(jsonInput);
-       json output = { "response": "hello-world"};
-       return output;
-    }
-   ```
-Note that the ballerina file should include both **main(string... args)** function and **run(json jsonInput)**. main(string... args) function is used to compile the ballerina function
-
-Run ```ballerina build hello-function.bal``` to build the above function. [Ballerina](https://ballerina.io/downloads/)
-
-### Create the Ballerina Action
-Create an OpenWhisk action for the above Ballerina function using the OpenWhisk CLI:
-
-To use as a docker action:
-
-```bash
-wsk action create hello-function hello-function.balx --docker mpmunasinghe/balaction
-```
-
-To use on a deployment of OpenWhisk that contains the runtime as a kind:
-
-```bash
-wsk action create hello-function hello-function.balx
-```
-
-### Invoke the Ballerina Action
-Invoke the hello-function using the OpenWhisk CLI:
-
-```bash
-wsk action invoke hello-function --result
-{
-    "response": "hello-world"
+```ballerina
+import ballerina/io;
+function main(string... args) {
+  io:println("started");
+}
+function run(json jsonInput) returns json {
+  io:println(jsonInput);
+  json output = { "response": "hello-world"};
+  return output;
 }
 ```
 
-### Testing
-Install dependencies from the root directory on $OPENWHISK_HOME repository
+The Ballerina file should include:
+ - `main(string... args)` and
+ - `run(json jsonInput)`.
+
+The first is necessary to compile the function but does not execute when you
+invoke the action.
+
+### Compiling your function
+
+Run the [Ballerina](https://ballerina.io/downloads) compiler to
+build your function.
+```bash
+ballerina build hello.bal
+```
+
+This generates an executable `hello.balx`. You will use this binary to create
+the OpenWhisk action.
+
+### Creating and invoking your Ballerina action
+
+Use the OpenWhisk [`wsk` CLIA](https://github.com/apache/incubator-openwhisk/blob/master/docs/cli.md)
+to create your Ballerina action.
+
+```bash
+wsk action create hello hello.balx --docker mpmunasinghe/balaction
+```
+
+Now you're ready to invoke the action:
+
+```bash
+wsk action invoke hello --result
+```
+```json
+{
+  "response": "hello-world"
+}
+```
+
+You can learn more about working with OpenWhisk Actions [here](https://github.com/apache/incubator-openwhisk/blob/master/docs/actions.md).
+
+### Developing the Ballerina runtime for OpenWhisk
+
+To build the Ballerina runtime, you need an OpenWhisk snapshot release which
+you can install as follows:
 ```bash
 pushd $OPENWHISK_HOME
 ./gradlew install
 podd $OPENWHISK_HOME
 ```
+where `$OPENWHISK_HOME` is an environment variable that points to your
+OpenWhisk directory.
 
-Using gradle to run all tests
+The Ballerina runtime is built with the Gradle wrapper `gradlew`.
+```bash
+./gradlew distDocker
+```
+
+You can also use `gradlew` to run all the unit tests.
 ```bash
 ./gradlew :tests:test
 ```
-Using gradle to run some tests
+
+Or to run a specific test.
 ```bash
 ./gradlew :tests:test --tests *ActionContainerTests*
 ```
-Using IntelliJ:
-- Import project as gradle project.
-- Make sure working directory is root of the project/repo
 
-# License
-[Apache 2.0](LICENSE.txt)
+This project can be imported into [IntelliJ](https://www.jetbrains.com/idea/)
+for development and testing. Import the project as a Gradle project, and make
+sure your working directory is the root directory for this repository.
