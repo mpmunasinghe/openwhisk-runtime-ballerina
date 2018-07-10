@@ -32,20 +32,18 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog
 import spray.json._
 
 @RunWith(classOf[JUnitRunner])
-class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActorSystem {
+class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with WskActorSystem {
 
   lazy val ballerinaContainerImageName = "mpmunasinghe/balaction"
 
-  override def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
+  def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
     withContainer(ballerinaContainerImageName, env)(code)
   }
-
-  def withBallerinaContainer(code: ActionContainer => Unit) = withActionContainer()(code)
 
   behavior of ballerinaContainerImageName
 
   it should "Initialize with the hello-function code and invoke" in {
-    val (out, err) = withBallerinaContainer { c =>
+    val (out, err) = withActionContainer() { c =>
       val sourceFile = buildBal("hello-function")
       sourceFile should not be "Build Error"
 
@@ -58,7 +56,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
   }
 
   it should "Initialize with function returning the response and invoke" in {
-    val (out, err) = withBallerinaContainer { c =>
+    val (out, err) = withActionContainer() { c =>
       val sourceFile = buildBal("return-response")
       sourceFile should not be "Build Error"
 
@@ -71,7 +69,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
   }
 
   it should "should fail for Ballerina code with no run function" in {
-    val (out, err) = withBallerinaContainer { c =>
+    val (out, err) = withActionContainer() { c =>
       val sourceFile = buildBal("fail-function")
       sourceFile should not be "Build Error"
 
@@ -84,7 +82,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
   }
 
   it should "fail to initialize with bad code" in {
-    val (out, err) = withBallerinaContainer { c =>
+    val (out, err) = withActionContainer() { c =>
       // This is valid zip file containing a single file, but not a valid
       // balx file.
       val brokenFile = ("UEsDBAoAAAAAAPxYbkhT4iFbCgAAAAoAAAANABwAbm90YWNsYXNzZmlsZVV" +
@@ -99,7 +97,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
   }
 
   it should "fail for a direct call to run response with 400" in {
-    val (out, err) = withBallerinaContainer { c =>
+    val (out, err) = withActionContainer() { c =>
       val (runCode, runRes) = c.run(runPayload(JsObject()))
       runCode should be(400)
     }
