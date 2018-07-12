@@ -26,6 +26,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.msf4j.Request;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -46,35 +47,47 @@ import javax.ws.rs.core.Response;
     @POST
     @Path("init")
     public Response init(@Context Request request) throws IOException {
-        InputStream balxIs = null;
+        InputStream ballerinaIs = null;
         try {
             JsonObject requestElements = BalxLoader.requestToJson(request).getAsJsonObject(Constants.JSON_VALUE);
             Boolean isBinary = requestElements.get(Constants.BINARY).getAsBoolean();
 
+            String ballerinaCode = requestElements.get(Constants.CODE).getAsString();
+
+            ballerinaIs = new ByteArrayInputStream(ballerinaCode.getBytes(StandardCharsets.UTF_8));
+
             // Check for binary value. .balx should be received with the binary parameter
             if (isBinary) {
-                String base64Balx = requestElements.get(Constants.CODE).getAsString();
-
-                balxIs = new ByteArrayInputStream(base64Balx.getBytes(StandardCharsets.UTF_8));
-
-                java.nio.file.Path destinationPath = BalxLoader.saveBase64EncodedFile(balxIs);
+                java.nio.file.Path destinationPath = BalxLoader.saveBase64EncodedFile(ballerinaIs);
 
                 programFile = BLangProgramLoader.read(destinationPath);
 
                 return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
                                .entity("{ 'success' : 'Function init success'}").build();
             } else {
-                return Response.status(Response.Status.BAD_REQUEST)
-                               .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                               .entity("{ 'error' : 'Bad content request'}").build();
+                java.nio.file.Path destinationPath = BalxLoader.saveBalFile(ballerinaIs);
+
+                String tempDir = new File(destinationPath.toString()).getAbsoluteFile().getParent();
+
+                if (BalxLoader.buildBal(tempDir)) {
+                    java.nio.file.Path balxString = java.nio.file.Paths.get(destinationPath + "x");
+                    programFile = BLangProgramLoader.read(balxString);
+
+                    return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                                   .entity("{ 'success' : 'Function init success'}").build();
+                } else {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                                   .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                                   .entity("{ 'error' : 'Bad content request'}").build();
+                }
             }
         } catch (IOException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
                            .entity("{ 'error' : 'Internal server error'}").build();
         } finally {
-            if (balxIs != null) {
-                balxIs.close();
+            if (ballerinaIs != null) {
+                ballerinaIs.close();
             }
         }
     }

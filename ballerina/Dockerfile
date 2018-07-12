@@ -29,14 +29,12 @@ ENV LANG="en_US.UTF-8" \
 	UPDATE=162 \
 	BUILD=12
 
-# COPY ballerina-runtime /home/ballerina
-
 ADD proxy /home/ballerina
 
 RUN cd /home/ballerina \
     && rm -rf .classpath .gitignore .gradle .project .settings Dockerfile build \
     && ./gradlew shadowJar \
-    && rm -rf /home/ballerina/src \
+    && rm -rf /home/ballerina/src
 
 EXPOSE  8080
 

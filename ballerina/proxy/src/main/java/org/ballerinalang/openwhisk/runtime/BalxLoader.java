@@ -19,8 +19,14 @@ package org.ballerinalang.openwhisk.runtime;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.msf4j.Request;
 
 import java.io.File;
@@ -68,6 +74,22 @@ public class BalxLoader {
     }
 
     /**
+     * Writes the received encoded input stream to function.bal file.
+     *
+     * @param inputStream Program Input Stream
+     * @return Path to function.bal
+     * @throws IOException
+     */
+    public static Path saveBalFile(InputStream inputStream) throws IOException {
+        File destinationFile = File.createTempFile(Constants.FUNCTION_FILE_NAME, ".bal");
+        destinationFile.deleteOnExit();
+        Path destinationPath = destinationFile.toPath();
+
+        Files.copy(inputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+        return destinationPath;
+    }
+
+    /**
      * Initializes the program file debugger and Global Memory area
      *
      * @param programFile Program File object to initialize
@@ -103,5 +125,23 @@ public class BalxLoader {
         return parser.parse(req.toString()).getAsJsonObject();
     }
 
+    /**
+     * Building ballerina .bal
+     *
+     * @param balPath path to bal directory
+     * @return build success status
+     */
+    public static boolean buildBal(String balPath) {
+        CompilerContext compilerContext = new CompilerContext();
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        compilerOptions.put(CompilerOptionName.PROJECT_DIR, balPath);
+        compilerOptions.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        compilerOptions.put(CompilerOptionName.OFFLINE, "true");
+
+        Compiler compiler = Compiler.getInstance(compilerContext);
+        compiler.build();
+        BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(compilerContext);
+        return diagnosticLog.errorCount <= 0;
+    }
 
 }
