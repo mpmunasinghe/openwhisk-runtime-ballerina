@@ -32,15 +32,82 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog
 import spray.json._
 
 @RunWith(classOf[JUnitRunner])
-class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with WskActorSystem {
+class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActorSystem {
 
   lazy val ballerinaContainerImageName = "mpmunasinghe/balaction"
 
-  def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
+  override def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
     withContainer(ballerinaContainerImageName, env)(code)
   }
 
+  override val testNoSourceOrExec = {
+    TestConfig("")
+  }
+
+  override val testInitCannotBeCalledMoreThanOnce = {
+    val sourceFile = buildBal("hello-function")
+    sourceFile should not be "Build Error"
+
+    TestConfig(sourceFile)
+  }
+
+  override val testNotReturningJson = {
+    // skip this test since and add own below (see Nuller)
+    TestConfig("", skipTest = true)
+  }
+
+  override val testEnv = {
+    TestConfig("", skipTest = true)
+  }
+
+  override def testEcho: TestConfig = {
+    val sourceFile = buildBal("echo-function")
+    sourceFile should not be "Build Error"
+
+    TestConfig(sourceFile)
+  }
+
+  override val testUnicode = {
+    TestConfig("", skipTest = true)
+  }
+
+  override val testEntryPointOtherThanMain = {
+    TestConfig("", skipTest = true)
+  }
+
+  override val testLargeInput = {
+    TestConfig("", skipTest = true)
+  }
+
   behavior of ballerinaContainerImageName
+
+  it should s"echo arguments and print message to stdout/stderr" in {
+    val config = testEcho
+
+    val argss = List(
+      JsObject("string" -> JsString("hello")),
+      JsObject("string" -> JsString("❄ ☃ ❄")),
+      JsObject("numbers" -> JsArray(JsNumber(42), JsNumber(1))),
+      // JsObject("boolean" -> JsBoolean(true)), // fails with swift3 returning boolean: 1
+      JsObject("object" -> JsObject("a" -> JsString("A"))))
+
+    val (out, err) = withActionContainer() { c =>
+      val (initCode, _) = c.init(initPayload(config.code, config.main))
+      initCode should be(200)
+
+      for (args <- argss) {
+        val (runCode, out) = c.run(runPayload(args))
+        runCode should be(200)
+        out should be(Some(args))
+      }
+    }
+
+    checkStreams(out, err, {
+      case (o, e) =>
+        o should include("hello stdout")
+        e should include("hello stderr")
+    }, argss.length)
+  }
 
   it should "Initialize with the hello-function code and invoke" in {
     val (out, err) = withActionContainer() { c =>
@@ -128,4 +195,12 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
     val encoded = Base64.getEncoder.encode(Files.readAllBytes(balxPath))
     new String(encoded, "UTF-8")
   }
+
+//  case class TestConfig(code: String,
+//                        main: String = "main",
+//                        enforceEmptyOutputStream: Boolean = true,
+//                        enforceEmptyErrorStream: Boolean = true,
+//                        hasCodeStub: Boolean = false,
+//                        skipTest: Boolean = false)
+
 }

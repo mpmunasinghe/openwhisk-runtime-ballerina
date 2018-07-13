@@ -46,6 +46,19 @@ import javax.ws.rs.core.Response;
     @POST
     @Path("init")
     public Response init(@Context Request request) throws IOException {
+        Optional<ProgramFile> optionalValue = Optional.ofNullable(programFile);
+
+        System.setProperty("ballerina.home","/Users/malithmunasinghe/workspace/ServerLess/Ballerina/openwhisk-runtime" +
+                                            "-ballerina/ballerina/proxy/build");
+
+        // Check whether init being called before
+        if (optionalValue.isPresent()) {
+            String errorMessage = " \"Cannot initialize the action more than once.\" ";
+            System.err.println(errorMessage);;
+            return Response.status(Response.Status.BAD_GATEWAY).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity("{ \"error\" : " + errorMessage + "} ").build();
+        }
+
         InputStream balxIs = null;
         try {
             JsonObject requestElements = BalxLoader.requestToJson(request).getAsJsonObject(Constants.JSON_VALUE);
@@ -68,10 +81,14 @@ import javax.ws.rs.core.Response;
                                .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
                                .entity("{ 'error' : 'Bad content request'}").build();
             }
+        } catch (ProgramFileFormatException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity("{ \"error\" : \"The action failed to generate or locate a binary. See logs for details.\"}").build();
         } catch (IOException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                           .entity("{ 'error' : 'Internal server error'}").build();
+                           .entity("{ \"error\" : \"Missing main/no code to execute.\"}").build();
         } finally {
             if (balxIs != null) {
                 balxIs.close();
@@ -112,8 +129,13 @@ import javax.ws.rs.core.Response;
         for (BValue bValue : result) {
             response.append(bValue.stringValue());
         }
-        return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
-                       .entity(response.toString()).build();
+        if (BalxLoader.isJsonResponse(response.toString())) {
+            return Response.status(Response.Status.OK).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity(response.toString()).build();
+        } else {
+            return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).header(HttpHeaders.CONTENT_ENCODING, Constants.IDENTITY)
+                           .entity("{ 'error' : 'Function didn't respond with a valid JSON'}").build();
+        }
     }
 
 }

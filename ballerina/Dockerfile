@@ -29,8 +29,6 @@ ENV LANG="en_US.UTF-8" \
 	UPDATE=162 \
 	BUILD=12
 
-# COPY ballerina-runtime /home/ballerina
-
 ADD proxy /home/ballerina
 
 RUN cd /home/ballerina \
