@@ -27,7 +27,7 @@ This repository contains the [Ballerina](https://ballerinalang.org) runtime for 
 
 The following prerequisites are needed to try this out:
 
-- [Ballerina](https://ballerina.io/downloads/) >= 0.980.0
+- [Ballerina](https://ballerina.io/downloads/) >= 0.975.0
 
 ### Creating a Ballerina function
 
