@@ -32,19 +32,52 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog
 import spray.json._
 
 @RunWith(classOf[JUnitRunner])
-class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with WskActorSystem {
+class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActorSystem {
 
   lazy val ballerinaContainerImageName = "mpmunasinghe/balaction"
 
-  def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
+  override def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
     withContainer(ballerinaContainerImageName, env)(code)
+  }
+
+  override val testNoSourceOrExec = {
+    TestConfig("")
+  }
+
+  override val testInitCannotBeCalledMoreThanOnce = {
+    TestConfig(buildBal("hello"))
+  }
+
+  override val testNotReturningJson = {
+    // skip this test to fix the nuller
+    TestConfig("", skipTest = true)
+  }
+
+  override val testEnv = {
+    TestConfig(buildBal("envparams"), enforceEmptyOutputStream = false, enforceEmptyErrorStream = false)
+  }
+
+  override val testEcho = {
+    TestConfig(buildBal("echo"), skipTest = true)
+  }
+
+  override val testUnicode = {
+    TestConfig(buildBal("unicode"))
+  }
+
+  override val testEntryPointOtherThanMain = {
+    TestConfig(buildBal("norun"), "example", enforceEmptyOutputStream = false)
+  }
+
+  override val testLargeInput = {
+    TestConfig(buildBal("return-response"))
   }
 
   behavior of ballerinaContainerImageName
 
-  it should "Initialize with the hello-function code and invoke" in {
+  it should "Initialize with the hello code and invoke" in {
     val (out, err) = withActionContainer() { c =>
-      val sourceFile = buildBal("hello-function")
+      val sourceFile = buildBal("hello")
       sourceFile should not be "Build Error"
 
       val (initCode, _) = c.init(initPayload(sourceFile))
@@ -70,7 +103,7 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
 
   it should "should fail for Ballerina code with no run function" in {
     val (out, err) = withActionContainer() { c =>
-      val sourceFile = buildBal("fail-function")
+      val sourceFile = buildBal("fail")
       sourceFile should not be "Build Error"
 
       val (initCode, _) = c.init(initPayload(sourceFile))
@@ -128,4 +161,5 @@ class BallerinaActionContainerTests extends ActionProxyContainerTestUtils with W
     val encoded = Base64.getEncoder.encode(Files.readAllBytes(balxPath))
     new String(encoded, "UTF-8")
   }
+
 }

@@ -65,7 +65,7 @@ the OpenWhisk action.
 
 ### Creating and invoking your Ballerina action
 
-Use the OpenWhisk [`wsk` CLIA](https://github.com/apache/incubator-openwhisk/blob/master/docs/cli.md)
+Use the OpenWhisk [`wsk` CLI](https://github.com/apache/incubator-openwhisk/blob/master/docs/cli.md)
 to create your Ballerina action.
 
 ```bash

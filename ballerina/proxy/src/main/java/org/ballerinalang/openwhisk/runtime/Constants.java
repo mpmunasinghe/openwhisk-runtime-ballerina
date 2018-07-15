@@ -25,7 +25,23 @@ class Constants {
     static final String BINARY = "binary";
     static final String CODE = "code";
     static final String IDENTITY = "identity";
+
     static final String FUNCTION_CALLABLE_NAME = "run";
+    static final String FUNCTION_MAIN = "main";
     static final String FUNCTION_FILE_NAME = "function";
     static final String FUNCTION_EXTENSION = ".balx";
+
+    static final String RESPONSE_ERROR = "\"error\"";
+    static final String RESPONSE_SUCCESS = "\"success\"";
+
+    static final String INIT_SUCCESS = "\"Function init success\"";
+
+    static final String INIT_ONCE_ERROR = "\"Cannot initialize the action more than once.\"";
+    static final String FAILED_TO_LOCATE_BINARY =
+            "\"The action failed to generate or locate a binary. See logs for details.\"";
+    static final String MISSING_MAIN_ERROR = "\"Missing main/no code to " + "execute.\"";
+    static final String FUNCTION_NOT_INITIALIZED = "\"Function not initialized\"";
+    static final String INVALID_INPUT_PARAMS = "\"Invalid input parameters for action run\"";
+    static final String FUNCTION_RUN_FAILURE = "\"Running Function failed\"";
+    static final String DICTIONARY_RETURN_FAILURE = "\"The action did not return a dictionary.\"";
 }

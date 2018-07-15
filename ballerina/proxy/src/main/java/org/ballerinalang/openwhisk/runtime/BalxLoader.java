@@ -102,6 +102,4 @@ public class BalxLoader {
         }
         return parser.parse(req.toString()).getAsJsonObject();
     }
-
-
 }

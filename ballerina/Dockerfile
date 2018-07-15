@@ -29,8 +29,6 @@ ENV LANG="en_US.UTF-8" \
 	UPDATE=162 \
 	BUILD=12
 
-# COPY ballerina-runtime /home/ballerina
-
 ADD proxy /home/ballerina
 
 RUN cd /home/ballerina \
@@ -40,4 +38,4 @@ RUN cd /home/ballerina \
 
 EXPOSE 8080
 
-CMD java -Dballerina.home=/home/ballerina/build -jar /home/ballerina/build/libs/ballerina-all.jar --http.port=8080
+CMD java -Dballerina.home=/home/ballerina/build -Djava.util.logging.manager=org.ballerinalang.logging.BLogManager -jar /home/ballerina/build/libs/ballerina-all.jar --http.port=8080
