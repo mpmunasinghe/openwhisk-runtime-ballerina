@@ -19,7 +19,6 @@ package org.ballerinalang.openwhisk.runtime;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.msf4j.Request;
@@ -102,15 +101,5 @@ public class BalxLoader {
             req.append(Charset.forName(StandardCharsets.UTF_8.name()).decode(buffer).toString());
         }
         return parser.parse(req.toString()).getAsJsonObject();
-    }
-
-    public static boolean isJsonResponse (String response) {
-        try {
-            JsonParser parser = new JsonParser();
-            parser.parse(response);
-        } catch (JsonSyntaxException ex) {
-            return false;
-        }
-        return true;
     }
 }

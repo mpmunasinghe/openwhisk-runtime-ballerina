@@ -54,7 +54,11 @@ dependencies {
     compile "org.ballerinalang:ballerina-database:0.975.0"
     compile "org.ballerinalang:ballerina-micrometer-extension:0.975.0"
     compile "org.slf4j:slf4j-api:1.7.22"
-    compile "com.google.code.gson:gson:2.6.2"
+}
+
+configurations.all {
+    exclude group: 'org.slf4j', module: 'slf4j-simple'
+    exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 task wrapper(type: Wrapper) {

@@ -45,73 +45,39 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
   }
 
   override val testInitCannotBeCalledMoreThanOnce = {
-    val sourceFile = buildBal("hello-function")
-    sourceFile should not be "Build Error"
-
-    TestConfig(sourceFile)
+    TestConfig(buildBal("hello"))
   }
 
   override val testNotReturningJson = {
-    // skip this test since and add own below (see Nuller)
+    // skip this test to fix the nuller
     TestConfig("", skipTest = true)
   }
 
   override val testEnv = {
-    TestConfig("", skipTest = true)
+    TestConfig(buildBal("envparams"), enforceEmptyOutputStream = false, enforceEmptyErrorStream = false)
   }
 
-  override def testEcho: TestConfig = {
-    val sourceFile = buildBal("echo-function")
-    sourceFile should not be "Build Error"
-
-    TestConfig(sourceFile)
+  override val testEcho = {
+    TestConfig(buildBal("echo"), skipTest = true)
   }
 
   override val testUnicode = {
-    TestConfig("", skipTest = true)
+    TestConfig(buildBal("unicode"))
   }
 
   override val testEntryPointOtherThanMain = {
-    TestConfig("", skipTest = true)
+    TestConfig(buildBal("norun"), "example", enforceEmptyOutputStream = false)
   }
 
   override val testLargeInput = {
-    TestConfig("", skipTest = true)
+    TestConfig(buildBal("return-response"))
   }
 
   behavior of ballerinaContainerImageName
 
-  it should s"echo arguments and print message to stdout/stderr" in {
-    val config = testEcho
-
-    val argss = List(
-      JsObject("string" -> JsString("hello")),
-      JsObject("string" -> JsString("❄ ☃ ❄")),
-      JsObject("numbers" -> JsArray(JsNumber(42), JsNumber(1))),
-      // JsObject("boolean" -> JsBoolean(true)), // fails with swift3 returning boolean: 1
-      JsObject("object" -> JsObject("a" -> JsString("A"))))
-
+  it should "Initialize with the hello code and invoke" in {
     val (out, err) = withActionContainer() { c =>
-      val (initCode, _) = c.init(initPayload(config.code, config.main))
-      initCode should be(200)
-
-      for (args <- argss) {
-        val (runCode, out) = c.run(runPayload(args))
-        runCode should be(200)
-        out should be(Some(args))
-      }
-    }
-
-    checkStreams(out, err, {
-      case (o, e) =>
-        o should include("hello stdout")
-        e should include("hello stderr")
-    }, argss.length)
-  }
-
-  it should "Initialize with the hello-function code and invoke" in {
-    val (out, err) = withActionContainer() { c =>
-      val sourceFile = buildBal("hello-function")
+      val sourceFile = buildBal("hello")
       sourceFile should not be "Build Error"
 
       val (initCode, _) = c.init(initPayload(sourceFile))
@@ -137,7 +103,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
 
   it should "should fail for Ballerina code with no run function" in {
     val (out, err) = withActionContainer() { c =>
-      val sourceFile = buildBal("fail-function")
+      val sourceFile = buildBal("fail")
       sourceFile should not be "Build Error"
 
       val (initCode, _) = c.init(initPayload(sourceFile))
@@ -195,12 +161,5 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
     val encoded = Base64.getEncoder.encode(Files.readAllBytes(balxPath))
     new String(encoded, "UTF-8")
   }
-
-//  case class TestConfig(code: String,
-//                        main: String = "main",
-//                        enforceEmptyOutputStream: Boolean = true,
-//                        enforceEmptyErrorStream: Boolean = true,
-//                        hasCodeStub: Boolean = false,
-//                        skipTest: Boolean = false)
 
 }

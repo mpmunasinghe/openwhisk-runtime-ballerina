@@ -38,4 +38,4 @@ RUN cd /home/ballerina \
 
 EXPOSE 8080
 
-CMD java -Dballerina.home=/home/ballerina/build -jar /home/ballerina/build/libs/ballerina-all.jar --http.port=8080
+CMD java -Dballerina.home=/home/ballerina/build -Djava.util.logging.manager=org.ballerinalang.logging.BLogManager -jar /home/ballerina/build/libs/ballerina-all.jar --http.port=8080
